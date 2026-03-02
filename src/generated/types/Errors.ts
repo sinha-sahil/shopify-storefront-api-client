@@ -1,49 +1,56 @@
-import { isJSON, decodeString, _decodeString , decodeNumber, _decodeNumber , decodeArray, _decodeArray  } from 'type-decoder';
+import {
+  isJSON,
+  decodeString,
+  _decodeString,
+  decodeNumber,
+  _decodeNumber,
+  decodeArray,
+  _decodeArray,
+} from "type-decoder";
 
 /**
  * @type { StorefrontErrorCode }
  * @description Error codes from Storefront API
  */
 export type StorefrontErrorCode =
-  | 'THROTTLED'
-  | 'ACCESS_DENIED'
-  | 'SHOP_INACTIVE'
-  | 'INTERNAL_SERVER_ERROR'
-  | 'UNPROCESSABLE'
-  | 'INVALID_ARGUMENT'
-  | 'NOT_FOUND'
-  | 'TOO_COMPLEX'
-  | 'TIMEOUT'
-;
+  | "THROTTLED"
+  | "ACCESS_DENIED"
+  | "SHOP_INACTIVE"
+  | "INTERNAL_SERVER_ERROR"
+  | "UNPROCESSABLE"
+  | "INVALID_ARGUMENT"
+  | "NOT_FOUND"
+  | "TOO_COMPLEX"
+  | "TIMEOUT";
 
 export function decodeStorefrontErrorCode(rawInput: unknown): StorefrontErrorCode | null {
   switch (rawInput) {
-    case 'THROTTLED':
-    case 'ACCESS_DENIED':
-    case 'SHOP_INACTIVE':
-    case 'INTERNAL_SERVER_ERROR':
-    case 'UNPROCESSABLE':
-    case 'INVALID_ARGUMENT':
-    case 'NOT_FOUND':
-    case 'TOO_COMPLEX':
-    case 'TIMEOUT':
-     return rawInput;
+    case "THROTTLED":
+    case "ACCESS_DENIED":
+    case "SHOP_INACTIVE":
+    case "INTERNAL_SERVER_ERROR":
+    case "UNPROCESSABLE":
+    case "INVALID_ARGUMENT":
+    case "NOT_FOUND":
+    case "TOO_COMPLEX":
+    case "TIMEOUT":
+      return rawInput;
   }
   return null;
 }
 
 export function _decodeStorefrontErrorCode(rawInput: unknown): StorefrontErrorCode | undefined {
   switch (rawInput) {
-    case 'THROTTLED':
-    case 'ACCESS_DENIED':
-    case 'SHOP_INACTIVE':
-    case 'INTERNAL_SERVER_ERROR':
-    case 'UNPROCESSABLE':
-    case 'INVALID_ARGUMENT':
-    case 'NOT_FOUND':
-    case 'TOO_COMPLEX':
-    case 'TIMEOUT':
-    return rawInput;
+    case "THROTTLED":
+    case "ACCESS_DENIED":
+    case "SHOP_INACTIVE":
+    case "INTERNAL_SERVER_ERROR":
+    case "UNPROCESSABLE":
+    case "INVALID_ARGUMENT":
+    case "NOT_FOUND":
+    case "TOO_COMPLEX":
+    case "TIMEOUT":
+      return rawInput;
   }
   return;
 }
@@ -57,36 +64,34 @@ export type StorefrontError = {
    * @description Error message
    * @type { string }
    * @memberof StorefrontError
-  */
+   */
   message: string;
   /**
    * @type { ErrorLocation[] }
    * @memberof StorefrontError
-  */
+   */
   locations: ErrorLocation[] | null;
-    /**
+  /**
    * @description Path to the field that caused the error
    * @type { string[] }
    * @memberof StorefrontError
-  */
+   */
   path: string[] | null;
-    /**
+  /**
    * @type { ErrorExtensions }
    * @memberof StorefrontError
-  */
+   */
   extensions: ErrorExtensions | null;
-  };
+};
 
 export function decodeStorefrontError(rawInput: unknown): StorefrontError | null {
   if (isJSON(rawInput)) {
-    const decodedMessage = decodeString(rawInput['message']);
-    const decodedLocations = decodeArray(rawInput['locations'], decodeErrorLocation);
-    const decodedPath = decodeArray(rawInput['path'], decodeString);
-    const decodedExtensions = decodeErrorExtensions(rawInput['extensions']);
+    const decodedMessage = decodeString(rawInput["message"]);
+    const decodedLocations = decodeArray(rawInput["locations"], decodeErrorLocation);
+    const decodedPath = decodeArray(rawInput["path"], decodeString);
+    const decodedExtensions = decodeErrorExtensions(rawInput["extensions"]);
 
-    if (
-      decodedMessage === null
-    ) {
+    if (decodedMessage === null) {
       return null;
     }
 
@@ -94,12 +99,11 @@ export function decodeStorefrontError(rawInput: unknown): StorefrontError | null
       message: decodedMessage,
       locations: decodedLocations,
       path: decodedPath,
-      extensions: decodedExtensions
+      extensions: decodedExtensions,
     };
   }
   return null;
 }
-
 
 /**
  * @type { ErrorLocation }
@@ -109,35 +113,31 @@ export type ErrorLocation = {
   /**
    * @type { number }
    * @memberof ErrorLocation
-  */
+   */
   line: number;
   /**
    * @type { number }
    * @memberof ErrorLocation
-  */
+   */
   column: number;
 };
 
 export function decodeErrorLocation(rawInput: unknown): ErrorLocation | null {
   if (isJSON(rawInput)) {
-    const decodedLine = decodeNumber(rawInput['line']);
-    const decodedColumn = decodeNumber(rawInput['column']);
+    const decodedLine = decodeNumber(rawInput["line"]);
+    const decodedColumn = decodeNumber(rawInput["column"]);
 
-    if (
-      decodedLine === null ||
-      decodedColumn === null
-    ) {
+    if (decodedLine === null || decodedColumn === null) {
       return null;
     }
 
     return {
       line: decodedLine,
-      column: decodedColumn
+      column: decodedColumn,
     };
   }
   return null;
 }
-
 
 /**
  * @type { ErrorExtensions }
@@ -147,30 +147,28 @@ export type ErrorExtensions = {
   /**
    * @type { StorefrontErrorCode }
    * @memberof ErrorExtensions
-  */
+   */
   code: StorefrontErrorCode | null;
-    /**
+  /**
    * @description Request ID for debugging
    * @type { string }
    * @memberof ErrorExtensions
-  */
+   */
   requestId: string | null;
-  };
+};
 
 export function decodeErrorExtensions(rawInput: unknown): ErrorExtensions | null {
   if (isJSON(rawInput)) {
-    const decodedCode = decodeStorefrontErrorCode(rawInput['code']);
-    const decodedRequestId = decodeString(rawInput['requestId']);
-
+    const decodedCode = decodeStorefrontErrorCode(rawInput["code"]);
+    const decodedRequestId = decodeString(rawInput["requestId"]);
 
     return {
       code: decodedCode,
-      requestId: decodedRequestId
+      requestId: decodedRequestId,
     };
   }
   return null;
 }
-
 
 /**
  * @type { UserError }
@@ -181,43 +179,40 @@ export type UserError = {
    * @description Path to the field that caused the error
    * @type { string[] }
    * @memberof UserError
-  */
+   */
   field: string[] | null;
-    /**
+  /**
    * @description Error message
    * @type { string }
    * @memberof UserError
-  */
+   */
   message: string;
   /**
    * @description Error code
    * @type { string }
    * @memberof UserError
-  */
+   */
   code: string | null;
-  };
+};
 
 export function decodeUserError(rawInput: unknown): UserError | null {
   if (isJSON(rawInput)) {
-    const decodedField = decodeArray(rawInput['field'], decodeString);
-    const decodedMessage = decodeString(rawInput['message']);
-    const decodedCode = decodeString(rawInput['code']);
+    const decodedField = decodeArray(rawInput["field"], decodeString);
+    const decodedMessage = decodeString(rawInput["message"]);
+    const decodedCode = decodeString(rawInput["code"]);
 
-    if (
-      decodedMessage === null
-    ) {
+    if (decodedMessage === null) {
       return null;
     }
 
     return {
       field: decodedField,
       message: decodedMessage,
-      code: decodedCode
+      code: decodedCode,
     };
   }
   return null;
 }
-
 
 /**
  * @type { GraphQLResponseData }
@@ -227,15 +222,12 @@ export type GraphQLResponseData = Record<string, unknown>;
 
 export function decodeGraphQLResponseData(rawInput: unknown): GraphQLResponseData | null {
   if (isJSON(rawInput)) {
-
-
     return {
       ...rawInput,
     };
   }
   return null;
 }
-
 
 /**
  * @type { GraphQLResponse }
@@ -245,36 +237,34 @@ export type GraphQLResponse = {
   /**
    * @type { GraphQLResponseData }
    * @memberof GraphQLResponse
-  */
+   */
   data: GraphQLResponseData | null;
-    /**
+  /**
    * @type { StorefrontError[] }
    * @memberof GraphQLResponse
-  */
+   */
   errors: StorefrontError[] | null;
-    /**
+  /**
    * @type { ResponseExtensions }
    * @memberof GraphQLResponse
-  */
+   */
   extensions: ResponseExtensions | null;
-  };
+};
 
 export function decodeGraphQLResponse(rawInput: unknown): GraphQLResponse | null {
   if (isJSON(rawInput)) {
-    const decodedData = decodeGraphQLResponseData(rawInput['data']);
-    const decodedErrors = decodeArray(rawInput['errors'], decodeStorefrontError);
-    const decodedExtensions = decodeResponseExtensions(rawInput['extensions']);
-
+    const decodedData = decodeGraphQLResponseData(rawInput["data"]);
+    const decodedErrors = decodeArray(rawInput["errors"], decodeStorefrontError);
+    const decodedExtensions = decodeResponseExtensions(rawInput["extensions"]);
 
     return {
       data: decodedData,
       errors: decodedErrors,
-      extensions: decodedExtensions
+      extensions: decodedExtensions,
     };
   }
   return null;
 }
-
 
 /**
  * @type { ResponseExtensions }
@@ -284,22 +274,20 @@ export type ResponseExtensions = {
   /**
    * @type { QueryCost }
    * @memberof ResponseExtensions
-  */
+   */
   cost: QueryCost | null;
-  };
+};
 
 export function decodeResponseExtensions(rawInput: unknown): ResponseExtensions | null {
   if (isJSON(rawInput)) {
-    const decodedCost = decodeQueryCost(rawInput['cost']);
-
+    const decodedCost = decodeQueryCost(rawInput["cost"]);
 
     return {
-      cost: decodedCost
+      cost: decodedCost,
     };
   }
   return null;
 }
-
 
 /**
  * @type { QueryCost }
@@ -309,36 +297,34 @@ export type QueryCost = {
   /**
    * @type { number }
    * @memberof QueryCost
-  */
+   */
   requestedQueryCost: number | null;
-    /**
+  /**
    * @type { number }
    * @memberof QueryCost
-  */
+   */
   actualQueryCost: number | null;
-    /**
+  /**
    * @type { ThrottleStatus }
    * @memberof QueryCost
-  */
+   */
   throttleStatus: ThrottleStatus | null;
-  };
+};
 
 export function decodeQueryCost(rawInput: unknown): QueryCost | null {
   if (isJSON(rawInput)) {
-    const decodedRequestedQueryCost = decodeNumber(rawInput['requestedQueryCost']);
-    const decodedActualQueryCost = decodeNumber(rawInput['actualQueryCost']);
-    const decodedThrottleStatus = decodeThrottleStatus(rawInput['throttleStatus']);
-
+    const decodedRequestedQueryCost = decodeNumber(rawInput["requestedQueryCost"]);
+    const decodedActualQueryCost = decodeNumber(rawInput["actualQueryCost"]);
+    const decodedThrottleStatus = decodeThrottleStatus(rawInput["throttleStatus"]);
 
     return {
       requestedQueryCost: decodedRequestedQueryCost,
       actualQueryCost: decodedActualQueryCost,
-      throttleStatus: decodedThrottleStatus
+      throttleStatus: decodedThrottleStatus,
     };
   }
   return null;
 }
-
 
 /**
  * @type { ThrottleStatus }
@@ -348,36 +334,31 @@ export type ThrottleStatus = {
   /**
    * @type { number }
    * @memberof ThrottleStatus
-  */
+   */
   maximumAvailable: number | null;
-    /**
+  /**
    * @type { number }
    * @memberof ThrottleStatus
-  */
+   */
   currentlyAvailable: number | null;
-    /**
+  /**
    * @type { number }
    * @memberof ThrottleStatus
-  */
+   */
   restoreRate: number | null;
-  };
+};
 
 export function decodeThrottleStatus(rawInput: unknown): ThrottleStatus | null {
   if (isJSON(rawInput)) {
-    const decodedMaximumAvailable = decodeNumber(rawInput['maximumAvailable']);
-    const decodedCurrentlyAvailable = decodeNumber(rawInput['currentlyAvailable']);
-    const decodedRestoreRate = decodeNumber(rawInput['restoreRate']);
-
+    const decodedMaximumAvailable = decodeNumber(rawInput["maximumAvailable"]);
+    const decodedCurrentlyAvailable = decodeNumber(rawInput["currentlyAvailable"]);
+    const decodedRestoreRate = decodeNumber(rawInput["restoreRate"]);
 
     return {
       maximumAvailable: decodedMaximumAvailable,
       currentlyAvailable: decodedCurrentlyAvailable,
-      restoreRate: decodedRestoreRate
+      restoreRate: decodedRestoreRate,
     };
   }
   return null;
 }
-
-
-
-
