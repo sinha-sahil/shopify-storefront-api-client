@@ -123,6 +123,58 @@ export const CART_USER_ERROR_FRAGMENT: string = `
   }
 `;
 
+// Cart fragment without customer scope (omits buyerIdentity.customer)
+export const CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT: string = `
+  fragment CartFieldsWithoutCustomerScope on Cart {
+    id
+    checkoutUrl
+    createdAt
+    updatedAt
+    note
+    totalQuantity
+    attributes {
+      key
+      value
+    }
+    buyerIdentity {
+      email
+      phone
+      countryCode
+    }
+    discountCodes {
+      code
+      applicable
+    }
+    discountAllocations {
+      discountedAmount {
+        ...MoneyFields
+      }
+    }
+    cost {
+      totalAmount {
+        ...MoneyFields
+      }
+      subtotalAmount {
+        ...MoneyFields
+      }
+      totalTaxAmount {
+        ...MoneyFields
+      }
+      totalDutyAmount {
+        ...MoneyFields
+      }
+      checkoutChargeAmount {
+        ...MoneyFields
+      }
+    }
+    lines(first: 100) {
+      nodes {
+        ...CartLineFields
+      }
+    }
+  }
+`;
+
 // Mutations
 export const CART_CREATE: string = `
   ${MONEY_FRAGMENT}
@@ -285,6 +337,171 @@ export const GET_CART: string = `
   query GetCart($id: ID!) {
     cart(id: $id) {
       ...CartFields
+    }
+  }
+`;
+
+// Queries and mutations without customer scope
+export const GET_CART_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  query GetCartWithoutCustomerScope($id: ID!) {
+    cart(id: $id) {
+      ...CartFieldsWithoutCustomerScope
+    }
+  }
+`;
+
+export const CART_CREATE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartCreateWithoutCustomerScope($input: CartInput) {
+    cartCreate(input: $input) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_LINES_ADD_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartLinesAddWithoutCustomerScope($cartId: ID!, $lines: [CartLineInput!]!) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_LINES_UPDATE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartLinesUpdateWithoutCustomerScope($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_LINES_REMOVE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartLinesRemoveWithoutCustomerScope($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_NOTE_UPDATE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartNoteUpdateWithoutCustomerScope($cartId: ID!, $note: String!) {
+    cartNoteUpdate(cartId: $cartId, note: $note) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_ATTRIBUTES_UPDATE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartAttributesUpdateWithoutCustomerScope($cartId: ID!, $attributes: [AttributeInput!]!) {
+    cartAttributesUpdate(cartId: $cartId, attributes: $attributes) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_BUYER_IDENTITY_UPDATE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartBuyerIdentityUpdateWithoutCustomerScope($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+    cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_DISCOUNT_CODES_UPDATE_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartDiscountCodesUpdateWithoutCustomerScope($cartId: ID!, $discountCodes: [String!]!) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
+    }
+  }
+`;
+
+export const CART_GIFT_CARD_CODES_ADD_WITHOUT_CUSTOMER_SCOPE: string = `
+  ${MONEY_FRAGMENT}
+  ${CART_LINE_FRAGMENT}
+  ${CART_WITHOUT_CUSTOMER_SCOPE_FRAGMENT}
+  ${CART_USER_ERROR_FRAGMENT}
+  mutation CartGiftCardCodesAddWithoutCustomerScope($cartId: ID!, $giftCardCodes: [String!]!) {
+    cartGiftCardCodesAdd(cartId: $cartId, giftCardCodes: $giftCardCodes) {
+      cart {
+        ...CartFieldsWithoutCustomerScope
+      }
+      userErrors {
+        ...UserErrorFields
+      }
     }
   }
 `;
