@@ -1,37 +1,20 @@
 import {
   type SEO,
   decodeSEO,
-  type MetafieldParentResourceTypename,
-  decodeMetafieldParentResourceTypename,
-  type MetafieldParentResource,
-  decodeMetafieldParentResource,
-  type MetafieldReferenceTypename,
-  decodeMetafieldReferenceTypename,
-  type Image,
-  decodeImage,
-  type VideoSource,
-  decodeVideoSource,
-  type Model3dSource,
-  decodeModel3dSource,
-  type MetafieldReference,
-  decodeMetafieldReference,
-  type MetafieldReferenceEdge,
-  decodeMetafieldReferenceEdge,
   type PageInfo,
   decodePageInfo,
-  type MetafieldReferenceConnection,
-  decodeMetafieldReferenceConnection,
-  type Metafield,
-  decodeMetafield,
-} from "./index";
+  type Image,
+  decodeImage,
+} from "./Common";
+import { type Metafield, decodeMetafield } from "./Metafields";
 import {
   isJSON,
   decodeString,
   _decodeString,
-  decodeNumber,
-  _decodeNumber,
   decodeArray,
   _decodeArray,
+  decodeNumber,
+  _decodeNumber,
   decodeBoolean,
   _decodeBoolean,
 } from "type-decoder";
@@ -809,23 +792,6 @@ export function decodeMenuItemType(rawInput: unknown): MenuItemType | null {
   return null;
 }
 
-export function _decodeMenuItemType(rawInput: unknown): MenuItemType | undefined {
-  switch (rawInput) {
-    case "HTTP":
-    case "COLLECTION":
-    case "PRODUCT":
-    case "PAGE":
-    case "BLOG":
-    case "ARTICLE":
-    case "SHOP_POLICY":
-    case "SEARCH":
-    case "CATALOG":
-    case "FRONTPAGE":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { MenuItemResourceType }
  * @description Type of resource a menu item links to
@@ -849,19 +815,6 @@ export function decodeMenuItemResourceType(rawInput: unknown): MenuItemResourceT
       return rawInput;
   }
   return null;
-}
-
-export function _decodeMenuItemResourceType(rawInput: unknown): MenuItemResourceType | undefined {
-  switch (rawInput) {
-    case "Collection":
-    case "Product":
-    case "Page":
-    case "Blog":
-    case "Article":
-    case "ShopPolicy":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -993,17 +946,6 @@ export function decodePageSortKeys(rawInput: unknown): PageSortKeys | null {
   return null;
 }
 
-export function _decodePageSortKeys(rawInput: unknown): PageSortKeys | undefined {
-  switch (rawInput) {
-    case "TITLE":
-    case "UPDATED_AT":
-    case "ID":
-    case "RELEVANCE":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { BlogSortKeys }
  * @description Sort keys for blog queries
@@ -1019,17 +961,6 @@ export function decodeBlogSortKeys(rawInput: unknown): BlogSortKeys | null {
       return rawInput;
   }
   return null;
-}
-
-export function _decodeBlogSortKeys(rawInput: unknown): BlogSortKeys | undefined {
-  switch (rawInput) {
-    case "TITLE":
-    case "HANDLE":
-    case "ID":
-    case "RELEVANCE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -1057,20 +988,6 @@ export function decodeArticleSortKeys(rawInput: unknown): ArticleSortKeys | null
       return rawInput;
   }
   return null;
-}
-
-export function _decodeArticleSortKeys(rawInput: unknown): ArticleSortKeys | undefined {
-  switch (rawInput) {
-    case "TITLE":
-    case "BLOG_TITLE":
-    case "AUTHOR":
-    case "UPDATED_AT":
-    case "PUBLISHED_AT":
-    case "ID":
-    case "RELEVANCE":
-      return rawInput;
-  }
-  return;
 }
 
 /**

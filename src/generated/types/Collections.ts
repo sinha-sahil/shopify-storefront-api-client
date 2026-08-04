@@ -3,165 +3,23 @@ import {
   decodeImage,
   type SEO,
   decodeSEO,
-  type Money,
-  decodeMoney,
-  type ProductPriceRange,
-  decodeProductPriceRange,
-  type ProductOptionValueSwatch,
-  decodeProductOptionValueSwatch,
-  type WeightUnit,
-  decodeWeightUnit,
-  type SelectedOption,
-  decodeSelectedOption,
-  type ProductSummary,
-  decodeProductSummary,
-  type UnitPriceMeasurementMeasuredType,
-  decodeUnitPriceMeasurementMeasuredType,
-  type UnitPriceMeasurementMeasuredUnit,
-  decodeUnitPriceMeasurementMeasuredUnit,
-  type UnitPriceMeasurement,
-  decodeUnitPriceMeasurement,
-  type MetafieldParentResourceTypename,
-  decodeMetafieldParentResourceTypename,
-  type MetafieldParentResource,
-  decodeMetafieldParentResource,
-  type MetafieldReferenceTypename,
-  decodeMetafieldReferenceTypename,
-  type VideoSource,
-  decodeVideoSource,
-  type Model3dSource,
-  decodeModel3dSource,
-  type MetafieldReference,
-  decodeMetafieldReference,
-  type MetafieldReferenceEdge,
-  decodeMetafieldReferenceEdge,
   type PageInfo,
   decodePageInfo,
-  type MetafieldReferenceConnection,
-  decodeMetafieldReferenceConnection,
-  type Metafield,
-  decodeMetafield,
-  type SellingPlanCheckoutChargeType,
-  decodeSellingPlanCheckoutChargeType,
-  type SellingPlanCheckoutChargeValue,
-  decodeSellingPlanCheckoutChargeValue,
-  type SellingPlanCheckoutCharge,
-  decodeSellingPlanCheckoutCharge,
-  type SellingPlanPriceAdjustment,
-  decodeSellingPlanPriceAdjustment,
-  type SellingPlanOption,
-  decodeSellingPlanOption,
-  type SellingPlanInterval,
-  decodeSellingPlanInterval,
-  type SellingPlanRecurringBillingPolicy,
-  decodeSellingPlanRecurringBillingPolicy,
-  type SellingPlanBillingPolicy,
-  decodeSellingPlanBillingPolicy,
-  type SellingPlanRecurringDeliveryPolicy,
-  decodeSellingPlanRecurringDeliveryPolicy,
-  type SellingPlanDeliveryPolicy,
-  decodeSellingPlanDeliveryPolicy,
-  type SellingPlan,
-  decodeSellingPlan,
-  type SellingPlanAllocationPriceAdjustment,
-  decodeSellingPlanAllocationPriceAdjustment,
-  type SellingPlanAllocation,
-  decodeSellingPlanAllocation,
-  type SellingPlanAllocationEdge,
-  decodeSellingPlanAllocationEdge,
-  type SellingPlanAllocationConnection,
-  decodeSellingPlanAllocationConnection,
-  type MailingAddress,
-  decodeMailingAddress,
-  type Location,
-  decodeLocation,
-  type StoreAvailability,
-  decodeStoreAvailability,
-  type StoreAvailabilityEdge,
-  decodeStoreAvailabilityEdge,
-  type StoreAvailabilityConnection,
-  decodeStoreAvailabilityConnection,
-  type QuantityRule,
-  decodeQuantityRule,
-  type QuantityPriceBreak,
-  decodeQuantityPriceBreak,
-  type QuantityPriceBreakEdge,
-  decodeQuantityPriceBreakEdge,
-  type QuantityPriceBreakConnection,
-  decodeQuantityPriceBreakConnection,
-  type ProductVariant,
-  decodeProductVariant,
-  type ProductVariantComponent,
-  decodeProductVariantComponent,
-  type ProductVariantComponentEdge,
-  decodeProductVariantComponentEdge,
-  type ProductVariantComponentConnection,
-  decodeProductVariantComponentConnection,
-  type ProductVariantEdge,
-  decodeProductVariantEdge,
-  type ProductVariantConnection,
-  decodeProductVariantConnection,
-  type ShopPayInstallmentsProductVariantPricing,
-  decodeShopPayInstallmentsProductVariantPricing,
-  type ProductOptionValue,
-  decodeProductOptionValue,
-  type ProductOption,
-  decodeProductOption,
-  type ImageEdge,
-  decodeImageEdge,
-  type ImageConnection,
-  decodeImageConnection,
-  type TaxonomyCategory,
-  decodeTaxonomyCategory,
-  type MediaContentType,
-  decodeMediaContentType,
-  type Media,
-  decodeMedia,
-  type MediaEdge,
-  decodeMediaEdge,
-  type MediaConnection,
-  decodeMediaConnection,
-  type SellingPlanGroupOption,
-  decodeSellingPlanGroupOption,
-  type SellingPlanEdge,
-  decodeSellingPlanEdge,
-  type SellingPlanConnection,
-  decodeSellingPlanConnection,
-  type SellingPlanGroup,
-  decodeSellingPlanGroup,
-  type SellingPlanGroupEdge,
-  decodeSellingPlanGroupEdge,
-  type SellingPlanGroupConnection,
-  decodeSellingPlanGroupConnection,
-  type CountPrecision,
-  decodeCountPrecision,
-  type Count,
-  decodeCount,
-  type Product,
-  decodeProduct,
-  type ProductEdge,
-  decodeProductEdge,
-  type ProductConnection,
-  decodeProductConnection,
-  type VariantOptionFilter,
-  decodeVariantOptionFilter,
-  type PriceFilter,
-  decodePriceFilter,
-  type MetafieldFilter,
-  decodeMetafieldFilter,
   type ProductFilter,
   decodeProductFilter,
-} from "./index";
+} from "./Common";
+import { type ProductConnection, decodeProductConnection } from "./Products";
+import { type Metafield, decodeMetafield } from "./Metafields";
 import {
   isJSON,
   decodeString,
   _decodeString,
+  decodeArray,
+  _decodeArray,
   decodeNumber,
   _decodeNumber,
   decodeBoolean,
   _decodeBoolean,
-  decodeArray,
-  _decodeArray,
 } from "type-decoder";
 
 /**
@@ -392,16 +250,6 @@ export function decodeFilterType(rawInput: unknown): FilterType | null {
   return null;
 }
 
-export function _decodeFilterType(rawInput: unknown): FilterType | undefined {
-  switch (rawInput) {
-    case "LIST":
-    case "PRICE_RANGE":
-    case "BOOLEAN":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { Filter }
  * @description A filter for products in a collection
@@ -522,17 +370,6 @@ export function decodeCollectionSortKeys(rawInput: unknown): CollectionSortKeys 
   return null;
 }
 
-export function _decodeCollectionSortKeys(rawInput: unknown): CollectionSortKeys | undefined {
-  switch (rawInput) {
-    case "TITLE":
-    case "UPDATED_AT":
-    case "ID":
-    case "RELEVANCE":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { ProductCollectionSortKeys }
  * @description Sort keys for products within a collection
@@ -562,23 +399,6 @@ export function decodeProductCollectionSortKeys(
       return rawInput;
   }
   return null;
-}
-
-export function _decodeProductCollectionSortKeys(
-  rawInput: unknown
-): ProductCollectionSortKeys | undefined {
-  switch (rawInput) {
-    case "TITLE":
-    case "PRICE":
-    case "BEST_SELLING":
-    case "CREATED":
-    case "ID":
-    case "MANUAL":
-    case "COLLECTION_DEFAULT":
-    case "RELEVANCE":
-      return rawInput;
-  }
-  return;
 }
 
 /**

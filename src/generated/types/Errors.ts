@@ -6,6 +6,7 @@ import {
   _decodeNumber,
   decodeArray,
   _decodeArray,
+  decodeUnknown,
 } from "type-decoder";
 
 /**
@@ -37,22 +38,6 @@ export function decodeStorefrontErrorCode(rawInput: unknown): StorefrontErrorCod
       return rawInput;
   }
   return null;
-}
-
-export function _decodeStorefrontErrorCode(rawInput: unknown): StorefrontErrorCode | undefined {
-  switch (rawInput) {
-    case "THROTTLED":
-    case "ACCESS_DENIED":
-    case "SHOP_INACTIVE":
-    case "INTERNAL_SERVER_ERROR":
-    case "UNPROCESSABLE":
-    case "INVALID_ARGUMENT":
-    case "NOT_FOUND":
-    case "TOO_COMPLEX":
-    case "TIMEOUT":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -222,9 +207,12 @@ export type GraphQLResponseData = Record<string, unknown>;
 
 export function decodeGraphQLResponseData(rawInput: unknown): GraphQLResponseData | null {
   if (isJSON(rawInput)) {
-    return {
-      ...rawInput,
-    };
+    const decodedAdditionalProperties: GraphQLResponseData = {};
+    for (const key in rawInput) {
+      const decodedValue = decodeUnknown(rawInput[key]);
+      decodedAdditionalProperties[key] = decodedValue;
+    }
+    return decodedAdditionalProperties;
   }
   return null;
 }

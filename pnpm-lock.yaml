@@ -61,8 +61,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       type-crafter:
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.19.0
+        version: 0.19.0
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -903,8 +903,8 @@ packages:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
 
-  type-crafter@0.15.0:
-    resolution: {integrity: sha512-XiBx+8j4Sn1yjhS2AHKpTivfHvQzIIYJJWMB7QIFm1cZvT2MvXl4DnGI5KlCyVDxos2o9tz0bLq4ipuaNvVVEQ==}
+  type-crafter@0.19.0:
+    resolution: {integrity: sha512-n6e+IleFz7mn98TGhi7yfayiWSWlI6UDMZ7wu1U47lNBTcVN4WaiFbcXkldUWnOkvyM457YV4KBm7kKZCmyLyg==}
     hasBin: true
 
   type-decoder@2.3.1:
@@ -1679,7 +1679,7 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
 
-  type-crafter@0.15.0: {}
+  type-crafter@0.19.0: {}
 
   type-decoder@2.3.1: {}
 

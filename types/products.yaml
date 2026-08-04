@@ -339,6 +339,9 @@ Products:
         type: string
       handle:
         type: string
+      featuredImage:
+        $ref: './types/common.yaml#/Common/Image'
+        description: 'The featured image for nested product references'
 
   UnitPriceMeasurement:
     type: object

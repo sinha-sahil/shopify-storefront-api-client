@@ -154,6 +154,27 @@ export const GET_PRODUCTS: string = `
   }
 `;
 
+export const GET_PRODUCT_VARIANTS: string = `
+  ${MONEY_FRAGMENT}
+  ${IMAGE_FRAGMENT}
+  ${PRODUCT_VARIANT_FRAGMENT}
+  query GetProductVariants($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on ProductVariant {
+        ...ProductVariantFields
+        product {
+          id
+          handle
+          title
+          featuredImage {
+            ...ImageFields
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PRODUCT_RECOMMENDATIONS: string = `
   ${MONEY_FRAGMENT}
   ${IMAGE_FRAGMENT}

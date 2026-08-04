@@ -1,41 +1,25 @@
 import {
-  type CustomerSummary,
-  decodeCustomerSummary,
-  type MailingAddress,
-  decodeMailingAddress,
   type Attribute,
   decodeAttribute,
   type Money,
   decodeMoney,
-  type ProductSummary,
-  decodeProductSummary,
+  type PageInfo,
+  decodePageInfo,
   type Image,
   decodeImage,
   type SelectedOption,
   decodeSelectedOption,
-  type MetafieldParentResourceTypename,
-  decodeMetafieldParentResourceTypename,
-  type MetafieldParentResource,
-  decodeMetafieldParentResource,
-  type MetafieldReferenceTypename,
-  decodeMetafieldReferenceTypename,
-  type VideoSource,
-  decodeVideoSource,
-  type Model3dSource,
-  decodeModel3dSource,
-  type MetafieldReference,
-  decodeMetafieldReference,
-  type MetafieldReferenceEdge,
-  decodeMetafieldReferenceEdge,
-  type PageInfo,
-  decodePageInfo,
-  type MetafieldReferenceConnection,
-  decodeMetafieldReferenceConnection,
-  type Metafield,
-  decodeMetafield,
   type AttributeInput,
   decodeAttributeInput,
-} from "./index";
+} from "./Common";
+import { type Metafield, decodeMetafield } from "./Metafields";
+import {
+  type CustomerSummary,
+  decodeCustomerSummary,
+  type MailingAddress,
+  decodeMailingAddress,
+} from "./Customer";
+import { type ProductSummary, decodeProductSummary } from "./Products";
 import {
   isJSON,
   decodeString,
@@ -558,15 +542,6 @@ export function decodeCartDeliveryGroupType(rawInput: unknown): CartDeliveryGrou
   return null;
 }
 
-export function _decodeCartDeliveryGroupType(rawInput: unknown): CartDeliveryGroupType | undefined {
-  switch (rawInput) {
-    case "ONE_TIME_PURCHASE":
-    case "SUBSCRIPTION":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { CartDeliveryOption }
  * @description A delivery option for a cart delivery group
@@ -655,19 +630,6 @@ export function decodeDeliveryMethodType(rawInput: unknown): DeliveryMethodType 
       return rawInput;
   }
   return null;
-}
-
-export function _decodeDeliveryMethodType(rawInput: unknown): DeliveryMethodType | undefined {
-  switch (rawInput) {
-    case "SHIPPING":
-    case "PICK_UP":
-    case "RETAIL":
-    case "LOCAL":
-    case "PICKUP_POINT":
-    case "NONE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -767,19 +729,6 @@ export function decodeCartWarningCode(rawInput: unknown): CartWarningCode | null
       return rawInput;
   }
   return null;
-}
-
-export function _decodeCartWarningCode(rawInput: unknown): CartWarningCode | undefined {
-  switch (rawInput) {
-    case "MERCHANDISE_NOT_ENOUGH_STOCK":
-    case "MERCHANDISE_OUT_OF_STOCK":
-    case "PAYMENTS_GIFT_CARD_UNUSABLE":
-    case "CHECKOUT_THROTTLED":
-    case "DELIVERY_GROUP_PARTIALLY_AVAILABLE":
-    case "DELIVERY_GROUP_UNAVAILABLE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -1165,17 +1114,6 @@ export function decodeCartLineInstructionDiscounts(
   return null;
 }
 
-export function _decodeCartLineInstructionDiscounts(
-  rawInput: unknown
-): CartLineInstructionDiscounts | undefined {
-  switch (rawInput) {
-    case "APPLY":
-    case "IGNORE":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { CartLineParentRelationship }
  * @description Parent relationship for a cart line
@@ -1221,14 +1159,6 @@ export function decodeCartLineParentType(rawInput: unknown): CartLineParentType 
       return rawInput;
   }
   return null;
-}
-
-export function _decodeCartLineParentType(rawInput: unknown): CartLineParentType | undefined {
-  switch (rawInput) {
-    case "BUNDLE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -1837,17 +1767,6 @@ export function decodeSellingPlanCheckoutChargeType(
   return null;
 }
 
-export function _decodeSellingPlanCheckoutChargeType(
-  rawInput: unknown
-): SellingPlanCheckoutChargeType | undefined {
-  switch (rawInput) {
-    case "PERCENTAGE":
-    case "PRICE":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { SellingPlanCheckoutChargeValue }
  * @description The value of the checkout charge (percentage or money)
@@ -2013,17 +1932,6 @@ export function decodeSellingPlanInterval(rawInput: unknown): SellingPlanInterva
   return null;
 }
 
-export function _decodeSellingPlanInterval(rawInput: unknown): SellingPlanInterval | undefined {
-  switch (rawInput) {
-    case "DAY":
-    case "WEEK":
-    case "MONTH":
-    case "YEAR":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { SellingPlanPriceAdjustment }
  * @description Price adjustment for a selling plan
@@ -2104,26 +2012,6 @@ export function decodeCartUserErrorCode(rawInput: unknown): CartUserErrorCode | 
       return rawInput;
   }
   return null;
-}
-
-export function _decodeCartUserErrorCode(rawInput: unknown): CartUserErrorCode | undefined {
-  switch (rawInput) {
-    case "INVALID":
-    case "LESS_THAN":
-    case "GREATER_THAN":
-    case "INVALID_MERCHANDISE_LINE":
-    case "MISSING_DISCOUNT_CODE":
-    case "MISSING_NOTE":
-    case "INVALID_DELIVERY_GROUP":
-    case "INVALID_DELIVERY_OPTION":
-    case "INVALID_METAFIELDS":
-    case "GIFT_CARD_UNUSABLE":
-    case "PRODUCT_NOT_AVAILABLE":
-    case "INVALID_INPUT":
-    case "VALIDATION_ERROR":
-      return rawInput;
-  }
-  return;
 }
 
 /**

@@ -1,3 +1,4 @@
+import { type Metafield, decodeMetafield } from "./Metafields";
 import {
   type PageInfo,
   decodePageInfo,
@@ -5,101 +6,9 @@ import {
   decodeMoney,
   type Attribute,
   decodeAttribute,
-  type WeightUnit,
-  decodeWeightUnit,
-  type Image,
-  decodeImage,
-  type SelectedOption,
-  decodeSelectedOption,
-  type ProductSummary,
-  decodeProductSummary,
-  type UnitPriceMeasurementMeasuredType,
-  decodeUnitPriceMeasurementMeasuredType,
-  type UnitPriceMeasurementMeasuredUnit,
-  decodeUnitPriceMeasurementMeasuredUnit,
-  type UnitPriceMeasurement,
-  decodeUnitPriceMeasurement,
-  type MetafieldParentResourceTypename,
-  decodeMetafieldParentResourceTypename,
-  type MetafieldParentResource,
-  decodeMetafieldParentResource,
-  type MetafieldReferenceTypename,
-  decodeMetafieldReferenceTypename,
-  type VideoSource,
-  decodeVideoSource,
-  type Model3dSource,
-  decodeModel3dSource,
-  type MetafieldReference,
-  decodeMetafieldReference,
-  type MetafieldReferenceEdge,
-  decodeMetafieldReferenceEdge,
-  type MetafieldReferenceConnection,
-  decodeMetafieldReferenceConnection,
-  type Metafield,
-  decodeMetafield,
-  type SellingPlanCheckoutChargeType,
-  decodeSellingPlanCheckoutChargeType,
-  type SellingPlanCheckoutChargeValue,
-  decodeSellingPlanCheckoutChargeValue,
-  type SellingPlanCheckoutCharge,
-  decodeSellingPlanCheckoutCharge,
-  type SellingPlanPriceAdjustment,
-  decodeSellingPlanPriceAdjustment,
-  type SellingPlanOption,
-  decodeSellingPlanOption,
-  type SellingPlanInterval,
-  decodeSellingPlanInterval,
-  type SellingPlanRecurringBillingPolicy,
-  decodeSellingPlanRecurringBillingPolicy,
-  type SellingPlanBillingPolicy,
-  decodeSellingPlanBillingPolicy,
-  type SellingPlanRecurringDeliveryPolicy,
-  decodeSellingPlanRecurringDeliveryPolicy,
-  type SellingPlanDeliveryPolicy,
-  decodeSellingPlanDeliveryPolicy,
-  type SellingPlan,
-  decodeSellingPlan,
-  type SellingPlanAllocationPriceAdjustment,
-  decodeSellingPlanAllocationPriceAdjustment,
-  type SellingPlanAllocation,
-  decodeSellingPlanAllocation,
-  type SellingPlanAllocationEdge,
-  decodeSellingPlanAllocationEdge,
-  type SellingPlanAllocationConnection,
-  decodeSellingPlanAllocationConnection,
-  type Location,
-  decodeLocation,
-  type StoreAvailability,
-  decodeStoreAvailability,
-  type StoreAvailabilityEdge,
-  decodeStoreAvailabilityEdge,
-  type StoreAvailabilityConnection,
-  decodeStoreAvailabilityConnection,
-  type QuantityRule,
-  decodeQuantityRule,
-  type QuantityPriceBreak,
-  decodeQuantityPriceBreak,
-  type QuantityPriceBreakEdge,
-  decodeQuantityPriceBreakEdge,
-  type QuantityPriceBreakConnection,
-  decodeQuantityPriceBreakConnection,
-  type ProductVariant,
-  decodeProductVariant,
-  type ProductVariantComponent,
-  decodeProductVariantComponent,
-  type ProductVariantComponentEdge,
-  decodeProductVariantComponentEdge,
-  type ProductVariantComponentConnection,
-  decodeProductVariantComponentConnection,
-  type ProductVariantEdge,
-  decodeProductVariantEdge,
-  type ProductVariantConnection,
-  decodeProductVariantConnection,
-  type ShopPayInstallmentsProductVariantPricing,
-  decodeShopPayInstallmentsProductVariantPricing,
-  type CartDiscountAllocation,
-  decodeCartDiscountAllocation,
-} from "./index";
+} from "./Common";
+import { type ProductVariant, decodeProductVariant } from "./Products";
+import { type CartDiscountAllocation, decodeCartDiscountAllocation } from "./Cart";
 import {
   isJSON,
   decodeString,
@@ -130,18 +39,6 @@ export function decodeOrderCancelReason(rawInput: unknown): OrderCancelReason | 
       return rawInput;
   }
   return null;
-}
-
-export function _decodeOrderCancelReason(rawInput: unknown): OrderCancelReason | undefined {
-  switch (rawInput) {
-    case "CUSTOMER":
-    case "FRAUD":
-    case "INVENTORY":
-    case "DECLINED":
-    case "OTHER":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -175,24 +72,6 @@ export function decodeOrderFulfillmentStatus(rawInput: unknown): OrderFulfillmen
   return null;
 }
 
-export function _decodeOrderFulfillmentStatus(
-  rawInput: unknown
-): OrderFulfillmentStatus | undefined {
-  switch (rawInput) {
-    case "UNFULFILLED":
-    case "PARTIALLY_FULFILLED":
-    case "FULFILLED":
-    case "RESTOCKED":
-    case "PENDING_FULFILLMENT":
-    case "OPEN":
-    case "IN_PROGRESS":
-    case "ON_HOLD":
-    case "SCHEDULED":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { OrderFinancialStatus }
  * @description Financial status of an order
@@ -220,20 +99,6 @@ export function decodeOrderFinancialStatus(rawInput: unknown): OrderFinancialSta
   return null;
 }
 
-export function _decodeOrderFinancialStatus(rawInput: unknown): OrderFinancialStatus | undefined {
-  switch (rawInput) {
-    case "PENDING":
-    case "AUTHORIZED":
-    case "PARTIALLY_PAID":
-    case "PARTIALLY_REFUNDED":
-    case "VOIDED":
-    case "PAID":
-    case "REFUNDED":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { DiscountAllocationMethod }
  * @description How a discount is allocated
@@ -248,18 +113,6 @@ export function decodeDiscountAllocationMethod(rawInput: unknown): DiscountAlloc
       return rawInput;
   }
   return null;
-}
-
-export function _decodeDiscountAllocationMethod(
-  rawInput: unknown
-): DiscountAllocationMethod | undefined {
-  switch (rawInput) {
-    case "ACROSS":
-    case "EACH":
-    case "ONE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -278,18 +131,6 @@ export function decodeDiscountTargetSelection(rawInput: unknown): DiscountTarget
   return null;
 }
 
-export function _decodeDiscountTargetSelection(
-  rawInput: unknown
-): DiscountTargetSelection | undefined {
-  switch (rawInput) {
-    case "ALL":
-    case "ENTITLED":
-    case "EXPLICIT":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { DiscountTargetType }
  * @description Type of discount target
@@ -303,15 +144,6 @@ export function decodeDiscountTargetType(rawInput: unknown): DiscountTargetType 
       return rawInput;
   }
   return null;
-}
-
-export function _decodeDiscountTargetType(rawInput: unknown): DiscountTargetType | undefined {
-  switch (rawInput) {
-    case "LINE_ITEM":
-    case "SHIPPING_LINE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -355,28 +187,6 @@ export function decodeCustomerUserErrorCode(rawInput: unknown): CustomerUserErro
       return rawInput;
   }
   return null;
-}
-
-export function _decodeCustomerUserErrorCode(rawInput: unknown): CustomerUserErrorCode | undefined {
-  switch (rawInput) {
-    case "BLANK":
-    case "INVALID":
-    case "TAKEN":
-    case "TOO_LONG":
-    case "TOO_SHORT":
-    case "UNIDENTIFIED_CUSTOMER":
-    case "CUSTOMER_DISABLED":
-    case "PASSWORD_STARTS_OR_ENDS_WITH_WHITESPACE":
-    case "CONTAINS_HTML_TAGS":
-    case "CONTAINS_URL":
-    case "TOKEN_INVALID":
-    case "ALREADY_ENABLED":
-    case "NOT_FOUND":
-    case "BAD_DOMAIN":
-    case "INVALID_MULTIPASS_REQUEST":
-      return rawInput;
-  }
-  return;
 }
 
 /**
