@@ -60,6 +60,30 @@ export async function testProductApi() {
     assertNotNull(product.handle, 'Product should have handle');
   }, ['method=getByHandle']);
 
+  // Test: Get product variants by IDs
+  await test('Get Variants By IDs', 'Fetch product variants via nodes field', async () => {
+    const listResult = await client.product.getMany({ first: 1 });
+    if (!(listResult instanceof APISuccess)) {
+      throw new Error('Should return products');
+    }
+    const products = listResult.response;
+    const variantIds = products.nodes[0]?.variants.nodes.slice(0, 2).map((v) => v.id) ?? [];
+    assert(variantIds.length > 0, 'Should have variant IDs to query');
+
+    const result = await client.product.getVariantsByIds(variantIds);
+    if (!(result instanceof APISuccess)) {
+      throw new Error('Should return variants');
+    }
+    const variants = result.response;
+    assert(Array.isArray(variants), 'Variants should be an array');
+    assertLength(variants, variantIds.length, 'Should return one variant per requested ID');
+    for (const v of variants) {
+      assertNotNull(v.id, 'Variant should have id');
+      assertNotNull(v.title, 'Variant should have title');
+      assertNotNull(v.price, 'Variant should have price');
+    }
+  }, ['method=getVariantsByIds']);
+
   // Test: Get product recommendations
   await test('Get Recommendations', 'Fetch product recommendations', async () => {
     if (!testProductId) {

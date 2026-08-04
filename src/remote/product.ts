@@ -3,17 +3,20 @@ import type { Executor } from "./executor";
 import {
   type Product,
   type ProductConnection,
+  type ProductVariant,
   type StorefrontError,
   type GetProductsArgs,
   type GetProductRecommendationsArgs,
   decodeProductResponse,
   decodeProductsResponse,
   decodeProductRecommendationsResponse,
+  decodeProductVariantsResponse,
 } from "../generated/types";
 import {
   GET_PRODUCT_BY_ID,
   GET_PRODUCT_BY_HANDLE,
   GET_PRODUCTS,
+  GET_PRODUCT_VARIANTS,
   GET_PRODUCT_RECOMMENDATIONS,
 } from "../queries";
 
@@ -54,6 +57,14 @@ export function createProductApi(executor: Executor): ProductApi {
       );
     },
 
+    getVariantsByIds(ids: string[]): Promise<APIResponse<ProductVariant[], StorefrontError[]>> {
+      return executor.execute(
+        GET_PRODUCT_VARIANTS,
+        { ids },
+        (data) => decodeProductVariantsResponse(data)?.nodes ?? null
+      );
+    },
+
     getRecommendations(
       args: GetProductRecommendationsArgs
     ): Promise<APIResponse<Product[], StorefrontError[]>> {
@@ -72,6 +83,7 @@ export type ProductApi = {
   getMany: (
     args?: Partial<GetProductsArgs>
   ) => Promise<APIResponse<ProductConnection, StorefrontError[]>>;
+  getVariantsByIds: (ids: string[]) => Promise<APIResponse<ProductVariant[], StorefrontError[]>>;
   getRecommendations: (
     args: GetProductRecommendationsArgs
   ) => Promise<APIResponse<Product[], StorefrontError[]>>;

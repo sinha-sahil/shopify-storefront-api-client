@@ -1,67 +1,26 @@
 import {
   type Image,
   decodeImage,
-  type Money,
-  decodeMoney,
   type SEO,
   decodeSEO,
-  type SelectedOption,
-  decodeSelectedOption,
-  type MetafieldParentResourceTypename,
-  decodeMetafieldParentResourceTypename,
-  type MetafieldParentResource,
-  decodeMetafieldParentResource,
-  type MetafieldReferenceTypename,
-  decodeMetafieldReferenceTypename,
-  type MetafieldReference,
-  decodeMetafieldReference,
-  type MetafieldReferenceEdge,
-  decodeMetafieldReferenceEdge,
-  type PageInfo,
-  decodePageInfo,
-  type MetafieldReferenceConnection,
-  decodeMetafieldReferenceConnection,
-  type Metafield,
-  decodeMetafield,
-  type SellingPlanCheckoutChargeType,
-  decodeSellingPlanCheckoutChargeType,
-  type SellingPlanCheckoutChargeValue,
-  decodeSellingPlanCheckoutChargeValue,
-  type SellingPlanCheckoutCharge,
-  decodeSellingPlanCheckoutCharge,
-  type SellingPlanPriceAdjustment,
-  decodeSellingPlanPriceAdjustment,
-  type SellingPlanOption,
-  decodeSellingPlanOption,
-  type SellingPlanInterval,
-  decodeSellingPlanInterval,
-  type SellingPlanRecurringBillingPolicy,
-  decodeSellingPlanRecurringBillingPolicy,
-  type SellingPlanBillingPolicy,
-  decodeSellingPlanBillingPolicy,
-  type SellingPlanRecurringDeliveryPolicy,
-  decodeSellingPlanRecurringDeliveryPolicy,
-  type SellingPlanDeliveryPolicy,
-  decodeSellingPlanDeliveryPolicy,
-  type SellingPlan,
-  decodeSellingPlan,
-  type SellingPlanAllocationPriceAdjustment,
-  decodeSellingPlanAllocationPriceAdjustment,
-  type SellingPlanAllocation,
-  decodeSellingPlanAllocation,
-  type MailingAddress,
-  decodeMailingAddress,
-  type CountPrecision,
-  decodeCountPrecision,
   type Count,
   decodeCount,
-  type FilterType,
-  decodeFilterType,
-  type FilterValue,
-  decodeFilterValue,
-  type Filter,
-  decodeFilter,
-} from "./index";
+  type Money,
+  decodeMoney,
+  type SelectedOption,
+  decodeSelectedOption,
+  type PageInfo,
+  decodePageInfo,
+} from "./Common";
+import { type Metafield, decodeMetafield } from "./Metafields";
+import { type MailingAddress, decodeMailingAddress } from "./Customer";
+import { type Filter, decodeFilter } from "./Collections";
+import {
+  type SellingPlan,
+  decodeSellingPlan,
+  type SellingPlanAllocation,
+  decodeSellingPlanAllocation,
+} from "./Cart";
 import {
   isJSON,
   decodeString,
@@ -878,17 +837,6 @@ export function decodeWeightUnit(rawInput: unknown): WeightUnit | null {
   return null;
 }
 
-export function _decodeWeightUnit(rawInput: unknown): WeightUnit | undefined {
-  switch (rawInput) {
-    case "GRAMS":
-    case "KILOGRAMS":
-    case "OUNCES":
-    case "POUNDS":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { ProductSummary }
  * @description Minimal product info for nested references
@@ -909,6 +857,12 @@ export type ProductSummary = {
    * @memberof ProductSummary
    */
   handle: string;
+  /**
+   * @description The featured image for nested product references
+   * @type { Image }
+   * @memberof ProductSummary
+   */
+  featuredImage: Image | null;
 };
 
 export function decodeProductSummary(rawInput: unknown): ProductSummary | null {
@@ -916,6 +870,7 @@ export function decodeProductSummary(rawInput: unknown): ProductSummary | null {
     const decodedId = decodeString(rawInput["id"]);
     const decodedTitle = decodeString(rawInput["title"]);
     const decodedHandle = decodeString(rawInput["handle"]);
+    const decodedFeaturedImage = decodeImage(rawInput["featuredImage"]);
 
     if (decodedId === null || decodedTitle === null || decodedHandle === null) {
       return null;
@@ -925,6 +880,7 @@ export function decodeProductSummary(rawInput: unknown): ProductSummary | null {
       id: decodedId,
       title: decodedTitle,
       handle: decodedHandle,
+      featuredImage: decodedFeaturedImage,
     };
   }
   return null;
@@ -1000,19 +956,6 @@ export function decodeUnitPriceMeasurementMeasuredType(
   return null;
 }
 
-export function _decodeUnitPriceMeasurementMeasuredType(
-  rawInput: unknown
-): UnitPriceMeasurementMeasuredType | undefined {
-  switch (rawInput) {
-    case "VOLUME":
-    case "WEIGHT":
-    case "LENGTH":
-    case "AREA":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { UnitPriceMeasurementMeasuredUnit }
  * @description Unit of measurement
@@ -1048,26 +991,6 @@ export function decodeUnitPriceMeasurementMeasuredUnit(
       return rawInput;
   }
   return null;
-}
-
-export function _decodeUnitPriceMeasurementMeasuredUnit(
-  rawInput: unknown
-): UnitPriceMeasurementMeasuredUnit | undefined {
-  switch (rawInput) {
-    case "ML":
-    case "CL":
-    case "L":
-    case "M3":
-    case "MG":
-    case "G":
-    case "KG":
-    case "MM":
-    case "CM":
-    case "M":
-    case "M2":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -1845,17 +1768,6 @@ export function decodeMediaContentType(rawInput: unknown): MediaContentType | nu
   return null;
 }
 
-export function _decodeMediaContentType(rawInput: unknown): MediaContentType | undefined {
-  switch (rawInput) {
-    case "IMAGE":
-    case "VIDEO":
-    case "EXTERNAL_VIDEO":
-    case "MODEL_3D":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { MediaImage }
  * @description An image media type
@@ -2105,15 +2017,6 @@ export function decodeMediaHost(rawInput: unknown): MediaHost | null {
       return rawInput;
   }
   return null;
-}
-
-export function _decodeMediaHost(rawInput: unknown): MediaHost | undefined {
-  switch (rawInput) {
-    case "YOUTUBE":
-    case "VIMEO":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -2643,22 +2546,6 @@ export function decodeProductSortKeys(rawInput: unknown): ProductSortKeys | null
   return null;
 }
 
-export function _decodeProductSortKeys(rawInput: unknown): ProductSortKeys | undefined {
-  switch (rawInput) {
-    case "TITLE":
-    case "PRODUCT_TYPE":
-    case "VENDOR":
-    case "UPDATED_AT":
-    case "CREATED_AT":
-    case "BEST_SELLING":
-    case "PRICE":
-    case "ID":
-    case "RELEVANCE":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { ProductRecommendationIntent }
  * @description Intent for product recommendations
@@ -2674,17 +2561,6 @@ export function decodeProductRecommendationIntent(
       return rawInput;
   }
   return null;
-}
-
-export function _decodeProductRecommendationIntent(
-  rawInput: unknown
-): ProductRecommendationIntent | undefined {
-  switch (rawInput) {
-    case "RELATED":
-    case "COMPLEMENTARY":
-      return rawInput;
-  }
-  return;
 }
 
 /**

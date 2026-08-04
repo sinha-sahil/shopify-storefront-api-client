@@ -343,15 +343,6 @@ export function decodeCountPrecision(rawInput: unknown): CountPrecision | null {
   return null;
 }
 
-export function _decodeCountPrecision(rawInput: unknown): CountPrecision | undefined {
-  switch (rawInput) {
-    case "EXACT":
-    case "AT_LEAST":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { PriceRange }
  * @description Price range for a product (deprecated - use ProductPriceRange)

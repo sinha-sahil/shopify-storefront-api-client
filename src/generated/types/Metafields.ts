@@ -1,13 +1,10 @@
+import { type Image, decodeImage, type PageInfo, decodePageInfo } from "./Common";
 import {
-  type Image,
-  decodeImage,
   type VideoSource,
   decodeVideoSource,
   type Model3dSource,
   decodeModel3dSource,
-  type PageInfo,
-  decodePageInfo,
-} from "./index";
+} from "./Products";
 import {
   isJSON,
   decodeString,
@@ -51,24 +48,6 @@ export function decodeMetafieldReferenceType(rawInput: unknown): MetafieldRefere
   return null;
 }
 
-export function _decodeMetafieldReferenceType(
-  rawInput: unknown
-): MetafieldReferenceType | undefined {
-  switch (rawInput) {
-    case "Collection":
-    case "GenericFile":
-    case "MediaImage":
-    case "Metaobject":
-    case "Model3d":
-    case "Page":
-    case "Product":
-    case "ProductVariant":
-    case "Video":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { MetafieldParentResourceTypename }
  * @description GraphQL type name for metafield parent resources
@@ -108,27 +87,6 @@ export function decodeMetafieldParentResourceTypename(
   return null;
 }
 
-export function _decodeMetafieldParentResourceTypename(
-  rawInput: unknown
-): MetafieldParentResourceTypename | undefined {
-  switch (rawInput) {
-    case "Article":
-    case "Blog":
-    case "Cart":
-    case "Collection":
-    case "Customer":
-    case "Location":
-    case "Market":
-    case "Order":
-    case "Page":
-    case "Product":
-    case "ProductVariant":
-    case "Shop":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { MetafieldReferenceTypename }
  * @description GraphQL type name for metafield references
@@ -160,24 +118,6 @@ export function decodeMetafieldReferenceTypename(
       return rawInput;
   }
   return null;
-}
-
-export function _decodeMetafieldReferenceTypename(
-  rawInput: unknown
-): MetafieldReferenceTypename | undefined {
-  switch (rawInput) {
-    case "Collection":
-    case "GenericFile":
-    case "MediaImage":
-    case "Metaobject":
-    case "Model3d":
-    case "Page":
-    case "Product":
-    case "ProductVariant":
-    case "Video":
-      return rawInput;
-  }
-  return;
 }
 
 /**

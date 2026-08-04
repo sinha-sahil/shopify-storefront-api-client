@@ -1,39 +1,13 @@
-import {
-  type Image,
-  decodeImage,
-  type MetafieldParentResourceTypename,
-  decodeMetafieldParentResourceTypename,
-  type MetafieldParentResource,
-  decodeMetafieldParentResource,
-  type MetafieldReferenceTypename,
-  decodeMetafieldReferenceTypename,
-  type VideoSource,
-  decodeVideoSource,
-  type Model3dSource,
-  decodeModel3dSource,
-  type MetafieldReference,
-  decodeMetafieldReference,
-  type MetafieldReferenceEdge,
-  decodeMetafieldReferenceEdge,
-  type PageInfo,
-  decodePageInfo,
-  type MetafieldReferenceConnection,
-  decodeMetafieldReferenceConnection,
-  type Metafield,
-  decodeMetafield,
-  type Money,
-  decodeMoney,
-} from "./index";
+import { type Metafield, decodeMetafield } from "./Metafields";
+import { type Image, decodeImage, type Money, decodeMoney } from "./Common";
 import {
   isJSON,
   decodeString,
   _decodeString,
-  decodeNumber,
-  _decodeNumber,
   decodeArray,
   _decodeArray,
-  decodeBoolean,
-  _decodeBoolean,
+  decodeNumber,
+  _decodeNumber,
 } from "type-decoder";
 
 /**
@@ -678,18 +652,6 @@ export function decodeShopPayInstallmentsLoanType(
   return null;
 }
 
-export function _decodeShopPayInstallmentsLoanType(
-  rawInput: unknown
-): ShopPayInstallmentsLoanType | undefined {
-  switch (rawInput) {
-    case "SPLIT_PAY":
-    case "INTEREST_FREE":
-    case "INTEREST_BEARING":
-      return rawInput;
-  }
-  return;
-}
-
 /**
  * @type { SocialLoginProvider }
  * @description A social login provider for customer accounts
@@ -739,18 +701,6 @@ export function decodeSocialLoginProviderType(rawInput: unknown): SocialLoginPro
       return rawInput;
   }
   return null;
-}
-
-export function _decodeSocialLoginProviderType(
-  rawInput: unknown
-): SocialLoginProviderType | undefined {
-  switch (rawInput) {
-    case "GOOGLE":
-    case "FACEBOOK":
-    case "APPLE":
-      return rawInput;
-  }
-  return;
 }
 
 /**
@@ -861,21 +811,6 @@ export function decodeAcceptedCardBrandsItem(rawInput: unknown): AcceptedCardBra
   return null;
 }
 
-export function _decodeAcceptedCardBrandsItem(
-  rawInput: unknown
-): AcceptedCardBrandsItem | undefined {
-  switch (rawInput) {
-    case "VISA":
-    case "MASTERCARD":
-    case "DISCOVER":
-    case "AMERICAN_EXPRESS":
-    case "DINERS_CLUB":
-    case "JCB":
-    case "EFTPOS_AU":
-      return rawInput;
-  }
-  return;
-}
 /**
  * @type { SupportedDigitalWalletsItem }
  */
@@ -891,16 +826,4 @@ export function decodeSupportedDigitalWalletsItem(
       return rawInput;
   }
   return null;
-}
-
-export function _decodeSupportedDigitalWalletsItem(
-  rawInput: unknown
-): SupportedDigitalWalletsItem | undefined {
-  switch (rawInput) {
-    case "APPLE_PAY":
-    case "GOOGLE_PAY":
-    case "SHOPIFY_PAY":
-      return rawInput;
-  }
-  return;
 }
