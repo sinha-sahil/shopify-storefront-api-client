@@ -6,12 +6,56 @@ on:
     types: [closed]
 
 jobs:
-  publish:
+  detect-changes:
     if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      root_changed: ${{ steps.changes.outputs.root_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect package changes
+        id: changes
+        run: |
+          # For rebase + fast-forward merges, use the PR commit count
+          # to determine how far back to compare
+          PR_COMMITS=${{ github.event.pull_request.commits }}
+
+          BASE_SHA=$(git rev-parse HEAD~${PR_COMMITS})
+          HEAD_SHA=$(git rev-parse HEAD)
+
+          echo "PR had $PR_COMMITS commit(s)"
+          echo "Comparing $BASE_SHA to $HEAD_SHA"
+
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check for package changes, excluding workflow files
+          ROOT_CHANGES=$(echo "$CHANGED_FILES" | grep -v "^\.github/" || true)
+          if [ -n "$ROOT_CHANGES" ]; then
+            echo "root_changed=true" >> $GITHUB_OUTPUT
+            echo "Package has changes:"
+            echo "$ROOT_CHANGES"
+          else
+            echo "root_changed=false" >> $GITHUB_OUTPUT
+            echo "No package changes detected"
+          fi
+
+  publish-root:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.root_changed == 'true'
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
+      packages: write
+      pull-requests: write
       id-token: write
 
     environment: publish-env
@@ -37,10 +81,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.5.2
+          version: 10.18.0
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Configure Git
         run: |
@@ -51,60 +95,75 @@ jobs:
         id: commit-info
         run: |
           COMMIT_MSG=$(git log -1 --pretty=format:"%s")
-          echo "message=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
+          echo "message=$COMMIT_MSG" >> $GITHUB_OUTPUT
 
+          # Determine semantic version bump based on commit message
           if [[ "$COMMIT_MSG" =~ ^feat(\(.+\))?!: ]] || [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE ]]; then
-            echo "bump=major" >> "$GITHUB_OUTPUT"
-            echo "Detected breaking change - will perform major version bump"
+            echo "bump=major" >> $GITHUB_OUTPUT
+            echo "Detected BREAKING CHANGE - will perform major version bump"
           elif [[ "$COMMIT_MSG" =~ ^feat(\(.+\))?: ]]; then
-            echo "bump=minor" >> "$GITHUB_OUTPUT"
+            echo "bump=minor" >> $GITHUB_OUTPUT
             echo "Detected feature commit - will perform minor version bump"
           elif [[ "$COMMIT_MSG" =~ ^fix(\(.+\))?: ]] || [[ "$COMMIT_MSG" =~ ^perf(\(.+\))?: ]]; then
-            echo "bump=patch" >> "$GITHUB_OUTPUT"
+            echo "bump=patch" >> $GITHUB_OUTPUT
             echo "Detected fix/perf commit - will perform patch version bump"
           else
-            echo "bump=patch" >> "$GITHUB_OUTPUT"
+            echo "bump=patch" >> $GITHUB_OUTPUT
             echo "No specific commit type detected - defaulting to patch version bump"
           fi
 
-      - name: Bump version
+      - name: Bump version using npm
         id: version-bump
         run: |
           BUMP_TYPE="${{ steps.commit-info.outputs.bump }}"
-          NEW_VERSION=$(npm version "$BUMP_TYPE" --no-git-tag-version)
-          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Version bumped to $NEW_VERSION"
+          echo "Bumping version with type: $BUMP_TYPE"
+
+          # Use npm version to bump and create commit/tag
+          NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Version bumped to: $NEW_VERSION"
 
       - name: Build project
-        run: pnpm run build
+        run: |
+          echo "Building project with new version..."
+          pnpm run build
 
-      - name: Check if version is already published
+      - name: Check if version already published
         id: version-check
         run: |
           NEW_VERSION="${{ steps.version-bump.outputs.new_version }}"
           PACKAGE_NAME=$(node -p "require('./package.json').name")
 
+          echo "Checking if $PACKAGE_NAME@$NEW_VERSION is already published..."
+
+          # Check if version exists on NPM
           if npm view "$PACKAGE_NAME@$NEW_VERSION" version 2>/dev/null; then
-            echo "Version $NEW_VERSION is already published on npm"
-            echo "already_published=true" >> "$GITHUB_OUTPUT"
-            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            echo "Version $NEW_VERSION is already published on NPM"
+            echo "already_published=true" >> $GITHUB_OUTPUT
+            echo "should_publish=false" >> $GITHUB_OUTPUT
           else
             echo "Version $NEW_VERSION is not published yet"
-            echo "already_published=false" >> "$GITHUB_OUTPUT"
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "already_published=false" >> $GITHUB_OUTPUT
+            echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to npm with OIDC
+      - name: Publish to NPM
         id: npm-publish
         if: steps.version-check.outputs.should_publish == 'true'
         run: |
+          echo "Publishing to NPM..."
           npm publish
-          echo "publish_success=true" >> "$GITHUB_OUTPUT"
+          echo "NPM publish successful!"
+          echo "publish_success=true" >> $GITHUB_OUTPUT
 
-      - name: Skip publish when version already exists
+      - name: Skip publish (already exists)
         id: skip-publish
         if: steps.version-check.outputs.already_published == 'true'
-        run: echo "publish_success=true" >> "$GITHUB_OUTPUT"
+        run: |
+          NEW_VERSION="${{ steps.version-bump.outputs.new_version }}"
+          echo "Skipping NPM publish - version $NEW_VERSION already exists"
+          echo "Setting publish_success=true for already published version"
+          echo "publish_success=true" >> $GITHUB_OUTPUT
 
       - name: Commit and tag release
         if: steps.npm-publish.outputs.publish_success == 'true' || steps.skip-publish.outputs.publish_success == 'true'
@@ -114,12 +173,17 @@ jobs:
 
           git add package.json
           git commit -m "chore: release $NEW_VERSION"
+
+          # Create and push tag
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
           git push origin release
           git push origin --tags
 
           echo "Released version $NEW_VERSION with $BUMP_TYPE bump"
 
-      - name: Roll back version on publish failure
+      - name: Rollback on publish failure
         if: failure() && steps.npm-publish.conclusion == 'failure'
-        run: git checkout -- package.json
+        run: |
+          echo "NPM publish failed, rolling back version change..."
+          git checkout -- package.json
+          echo "Version rollback completed"
