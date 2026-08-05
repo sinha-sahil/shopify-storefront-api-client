@@ -1,0 +1,125 @@
+name: Release and Deploy
+
+on:
+  pull_request:
+    branches: [release]
+    types: [closed]
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    environment: publish-env
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # OIDC trusted publishing needs npm >= 11.5.1; Node 22 bundles npm 10.
+      - name: Update npm for trusted publishing
+        run: |
+          npm install -g npm@11
+          npm --version
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Get latest commit info
+        id: commit-info
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          echo "message=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
+
+          if [[ "$COMMIT_MSG" =~ ^feat(\(.+\))?!: ]] || [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE ]]; then
+            echo "bump=major" >> "$GITHUB_OUTPUT"
+            echo "Detected breaking change - will perform major version bump"
+          elif [[ "$COMMIT_MSG" =~ ^feat(\(.+\))?: ]]; then
+            echo "bump=minor" >> "$GITHUB_OUTPUT"
+            echo "Detected feature commit - will perform minor version bump"
+          elif [[ "$COMMIT_MSG" =~ ^fix(\(.+\))?: ]] || [[ "$COMMIT_MSG" =~ ^perf(\(.+\))?: ]]; then
+            echo "bump=patch" >> "$GITHUB_OUTPUT"
+            echo "Detected fix/perf commit - will perform patch version bump"
+          else
+            echo "bump=patch" >> "$GITHUB_OUTPUT"
+            echo "No specific commit type detected - defaulting to patch version bump"
+          fi
+
+      - name: Bump version
+        id: version-bump
+        run: |
+          BUMP_TYPE="${{ steps.commit-info.outputs.bump }}"
+          NEW_VERSION=$(npm version "$BUMP_TYPE" --no-git-tag-version)
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version bumped to $NEW_VERSION"
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Check if version is already published
+        id: version-check
+        run: |
+          NEW_VERSION="${{ steps.version-bump.outputs.new_version }}"
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+
+          if npm view "$PACKAGE_NAME@$NEW_VERSION" version 2>/dev/null; then
+            echo "Version $NEW_VERSION is already published on npm"
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version $NEW_VERSION is not published yet"
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to npm with OIDC
+        id: npm-publish
+        if: steps.version-check.outputs.should_publish == 'true'
+        run: |
+          npm publish
+          echo "publish_success=true" >> "$GITHUB_OUTPUT"
+
+      - name: Skip publish when version already exists
+        id: skip-publish
+        if: steps.version-check.outputs.already_published == 'true'
+        run: echo "publish_success=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag release
+        if: steps.npm-publish.outputs.publish_success == 'true' || steps.skip-publish.outputs.publish_success == 'true'
+        run: |
+          NEW_VERSION="${{ steps.version-bump.outputs.new_version }}"
+          BUMP_TYPE="${{ steps.commit-info.outputs.bump }}"
+
+          git add package.json
+          git commit -m "chore: release $NEW_VERSION"
+          git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
+          git push origin release
+          git push origin --tags
+
+          echo "Released version $NEW_VERSION with $BUMP_TYPE bump"
+
+      - name: Roll back version on publish failure
+        if: failure() && steps.npm-publish.conclusion == 'failure'
+        run: git checkout -- package.json
