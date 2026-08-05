@@ -1,19 +1,20 @@
-name: Release and Deploy
+name: Release and Publish
 
 on:
-  pull_request:
+  push:
     branches: [release]
-    types: [closed]
+
+env:
+  HUSKY: 0
 
 jobs:
   detect-changes:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       root_changed: ${{ steps.changes.outputs.root_changed }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -21,33 +22,42 @@ jobs:
       - name: Detect package changes
         id: changes
         run: |
-          # For rebase + fast-forward merges, use the PR commit count
-          # to determine how far back to compare
-          PR_COMMITS=${{ github.event.pull_request.commits }}
+          BEFORE_SHA="${{ github.event.before }}"
+          AFTER_SHA="${{ github.sha }}"
 
-          BASE_SHA=$(git rev-parse HEAD~${PR_COMMITS})
-          HEAD_SHA=$(git rev-parse HEAD)
+          # On a new branch or force-push the "before" SHA can be all zeros or
+          # missing. Fall back to the previous commit so the diff still works.
+          if [ -z "$BEFORE_SHA" ] \
+            || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] \
+            || ! git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            if git rev-parse --verify --quiet "${AFTER_SHA}~1" >/dev/null; then
+              BEFORE_SHA=$(git rev-parse "${AFTER_SHA}~1")
+              echo "No valid before SHA; falling back to parent commit $BEFORE_SHA"
+            else
+              # Root commit (no parent) — diff against the empty tree so the
+              # initial commit's files are all detected as changes.
+              BEFORE_SHA=$(git hash-object -t tree /dev/null)
+              echo "Root commit detected; diffing against empty tree $BEFORE_SHA"
+            fi
+          fi
 
-          echo "PR had $PR_COMMITS commit(s)"
-          echo "Comparing $BASE_SHA to $HEAD_SHA"
-
-          # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+          echo "Comparing $BEFORE_SHA..$AFTER_SHA"
+          CHANGED_FILES=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA")
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
-          # Check for package changes, excluding workflow files
+          # Root package = anything outside .github/
           ROOT_CHANGES=$(echo "$CHANGED_FILES" | grep -v "^\.github/" || true)
           if [ -n "$ROOT_CHANGES" ]; then
-            echo "root_changed=true" >> $GITHUB_OUTPUT
-            echo "Package has changes:"
+            echo "root_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Root package has changes:"
             echo "$ROOT_CHANGES"
           else
-            echo "root_changed=false" >> $GITHUB_OUTPUT
-            echo "No package changes detected"
+            echo "root_changed=false" >> "$GITHUB_OUTPUT"
+            echo "No root package changes detected"
           fi
 
-  publish-root:
+  release:
     needs: detect-changes
     if: needs.detect-changes.outputs.root_changed == 'true'
     runs-on: ubuntu-latest
@@ -58,38 +68,36 @@ jobs:
       pull-requests: write
       id-token: write
 
-    environment: publish-env
+    environment: npm
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
 
-      # OIDC trusted publishing needs npm >= 11.5.1; Node 22 bundles npm 10.
-      - name: Update npm for trusted publishing
-        run: |
-          npm install -g npm@11
-          npm --version
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
         with:
-          version: 10.18.0
+          version: 10.28.2
 
       - name: Install dependencies
         run: pnpm install
 
+      - name: Run linting
+        run: pnpm lint
+
       - name: Configure Git
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Get latest commit info
         id: commit-info
@@ -112,14 +120,14 @@ jobs:
             echo "No specific commit type detected - defaulting to patch version bump"
           fi
 
-      - name: Bump version using npm
+      - name: Bump version
         id: version-bump
         run: |
           BUMP_TYPE="${{ steps.commit-info.outputs.bump }}"
           echo "Bumping version with type: $BUMP_TYPE"
 
-          # Use npm version to bump and create commit/tag
-          NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
+          NEW_VERSION=$(pnpm version $BUMP_TYPE --no-git-tag-version)
+          NEW_VERSION=$(echo $NEW_VERSION | sed 's/^v//')
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "Version bumped to: $NEW_VERSION"
 
@@ -152,7 +160,7 @@ jobs:
         if: steps.version-check.outputs.should_publish == 'true'
         run: |
           echo "Publishing to NPM..."
-          npm publish
+          npm publish --access public
           echo "NPM publish successful!"
           echo "publish_success=true" >> $GITHUB_OUTPUT
 
@@ -172,7 +180,7 @@ jobs:
           BUMP_TYPE="${{ steps.commit-info.outputs.bump }}"
 
           git add package.json
-          git commit -m "chore: release $NEW_VERSION"
+          git commit -m "chore(release): $NEW_VERSION"
 
           # Create and push tag
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
