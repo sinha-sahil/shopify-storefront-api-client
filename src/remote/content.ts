@@ -2,8 +2,8 @@ import type { APIResponse } from "typesafe-api-call";
 import type { Executor } from "./executor";
 import {
   type Page,
-  type Blog,
   type PageConnection,
+  type Blog,
   type BlogConnection,
   type Article,
   type ArticleConnection,
