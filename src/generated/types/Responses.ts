@@ -142,6 +142,29 @@ export function decodeProductRecommendationsResponse(
 }
 
 /**
+ * @type { ProductsByIdsResponse }
+ * @description GraphQL response containing products resolved by ID via the nodes query
+ */
+export type ProductsByIdsResponse = {
+  /**
+   * @type { Product[] }
+   * @memberof ProductsByIdsResponse
+   */
+  nodes: Product[] | null;
+};
+
+export function decodeProductsByIdsResponse(rawInput: unknown): ProductsByIdsResponse | null {
+  if (isJSON(rawInput)) {
+    const decodedNodes = decodeArray(rawInput["nodes"], decodeProduct);
+
+    return {
+      nodes: decodedNodes,
+    };
+  }
+  return null;
+}
+
+/**
  * @type { ProductVariantsResponse }
  * @description GraphQL response containing product variants resolved by ID
  */

@@ -26,6 +26,15 @@ Responses:
         items:
           $ref: './types/products.yaml#/Products/Product'
 
+  ProductsByIdsResponse:
+    type: object
+    description: 'GraphQL response containing products resolved by ID via the nodes query'
+    properties:
+      nodes:
+        type: array
+        items:
+          $ref: './types/products.yaml#/Products/Product'
+
   ProductVariantsResponse:
     type: object
     description: 'GraphQL response containing product variants resolved by ID'
